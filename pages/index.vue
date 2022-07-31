@@ -1,19 +1,12 @@
 <template>
   <div>
-    <!-- 幻灯片 开始 -->
-    <div v-swiper:mySwiper="swiperOption">
-        <div class="swiper-wrapper">
-            <div v-for="banner in bannerList" :key="banner.id" class="swiper-slide" style="background: #040B1B;">
-                <a target="_blank" :href="banner.linkUrl">
-                    <img :src="banner.imageUrl" :alt="banner.title">
-                </a>
-            </div>
-        </div>
-        <div class="swiper-pagination swiper-pagination-white"></div>
-        <div class="swiper-button-prev swiper-button-white" slot="button-prev"></div>
-        <div class="swiper-button-next swiper-button-white" slot="button-next"></div>
-    </div>
-    <!-- 幻灯片 结束 -->
+    <el-carousel type="card">
+      <el-carousel-item v-for="banner in bannerList" :key="banner.id">
+        <a target="_blank" :href="banner.linkUrl">
+          <img :src="banner.imageUrl" :alt="banner.title" width="100%" height="auto">
+        </a>
+      </el-carousel-item>
+    </el-carousel>
     
     <div id="aCoursesList">
       <!-- 网校课程 开始 -->
@@ -26,15 +19,15 @@
           </header>
           <div>
             <article class="comm-course-list">
-              <ul class="of" id="bna">
-                <li v-for="course in eduList" :key="course.id">
+              <ul id="bna" class="of">
+                <li v-for="course in courseList" :key="course.id">
                   <div class="cc-l-wrap">
                     <section class="course-img">
                       <img
                         :src="course.cover"
                         class="img-responsive"
                         :alt="course.title"
-                      >
+                        :width="200" />                     >
                       <div class="cc-mask">
                         <a href="#" title="开始学习" class="comm-btn c-btn-1">开始学习</a>
                       </div>
@@ -43,13 +36,13 @@
                       <a href="#" :title="course.title" class="course-title fsize18 c-333">{{course.title}}</a>
                     </h3>
                     <section class="mt10 hLh20 of">
-                      <span class="fr jgTag bg-green" v-if="Number(course.price) === 0">
+                      <span v-if="Number(course.price) === 0" class="fr jgTag bg-green">
                         <i class="c-fff fsize12 f-fA">免费</i>
                       </span>
                       <span class="fl jgAttr c-ccc f-fA">
-                        <i class="c-999 f-fA">9634人学习</i>
+                        <i class="c-999 f-fA">{{course.buyCount}}人学习</i>
                         |
-                        <i class="c-999 f-fA">9634评论</i>
+                        <i class="c-999 f-fA">{{course.viewCount}}评论</i>
                       </span>
                     </section>
                   </div>
@@ -112,25 +105,57 @@
 </template>
 
 <script>
+import banner from '@/api/banner'
+import index from '@/api/index'
+
 export default {
   data() {
     return {
-      swiperOption: {
-        // 配置分页
-        pagination: {
-          el: '.swiper-pagination' // 分页的dom节点
-        },
-        // 配置导航
-        navigation: {
-          nextEl: '.swiper-button-next', // 下一页dom节点
-          prevEl: '.swiper-button-prev' // 前一页dom节点
-        }
-      },
       // banner数组
+      bannerCount: 2,
+      courseCount: 4,
+      teacherCount: 4,
       bannerList: [],
-      eduList: [],
+      courseList: [],
       teacherList: []
+    }
+  },
+  created() {
+    this.getList()
+  },
+  methods: {
+    getList() {
+      banner.getBannerList(this.bannerCount)
+        .then(response => {
+          this.bannerList = response.data.data
+        })
+      index.getCourseList(this.courseCount)
+        .then(response => {
+          this.courseList = response.data.data
+        })
+      index.getTeacherList(this.teacherCount)
+        .then(response => {
+          this.teacherList = response.data.data
+        })
     }
   }
 }
 </script>
+
+<style>
+  .el-carousel__item a {
+    color: #475669;
+    font-size: 18px;
+    margin: 0;
+    object-fit: fill;
+    width:100%;
+  }
+  
+  .el-carousel__item:nth-child(2n) {
+    background-color: #99a9bf;
+  }
+  
+  .el-carousel__item:nth-child(2n+1) {
+    background-color: #d3dce6;
+  }
+</style>
